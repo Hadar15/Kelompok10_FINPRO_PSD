@@ -13,7 +13,17 @@ entity cas_unit is
 end cas_unit;
 
 architecture Behavioral of cas_unit is 
-begin
 
+function get_min(val1, val2: SIGNED) return SIGNED is
+begin
+    if val1 <= val2 then
+        return val1;
+    else
+        return val2;
+    end if;
+end function get_min;
+
+begin
+    o_min <= get_min(i_val_a, i_val_b);
 
 end Behavioral;
