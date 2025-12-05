@@ -23,7 +23,18 @@ begin
     end if;
 end function get_min;
 
+function get_max(val1, val2 : SIGNED) return SIGNED is
+begin
+    if val1 >= val2 then
+        return val1;
+    else
+        return val2;
+    end if;
+end function get_max;
+
+
 begin
     o_min <= get_min(i_val_a, i_val_b);
+    o_max <= get_max(i_val_a, i_val_b);
 
 end Behavioral;
