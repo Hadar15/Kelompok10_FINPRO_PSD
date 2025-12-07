@@ -199,7 +199,71 @@ begin
         end if;
         
         wait for CLK_PERIOD * 5;
-        wait; -- Temporary wait
+        -- Test 5: Edge case - All same values
+        report "========================================" severity note;
+        report "Test 4: Testing with all identical values..." severity note;
+        
+        for i in 0 to ARRAY_SIZE-1 loop
+            raw_data(i) <= to_signed(42, DATA_WIDTH);
+        end loop;
+        
+        start <= '1';
+        wait for CLK_PERIOD;
+        start <= '0';
+        
+        wait until done = '1';
+        wait for CLK_PERIOD;
+        
+        test_passed := true;
+        for i in 0 to ARRAY_SIZE-2 loop
+            assert (sorted_data(i) <= sorted_data(i+1))
+                report "SORTING FAILED in Test 4"
+                severity error;
+            
+            if sorted_data(i) > sorted_data(i+1) then
+                test_passed := false;
+            end if;
+        end loop;
+        
+        if test_passed then
+            report "*** TEST 4 PASSED ***" severity note;
+        else
+            report "*** TEST 4 FAILED ***" severity error;
+        end if;
+        
+        -- Test 6: Negative numbers
+        report "========================================" severity note;
+        report "Test 5: Testing with negative numbers..." severity note;
+        
+        for i in 0 to ARRAY_SIZE-1 loop
+            uniform(seed1, seed2, rand_val);
+            int_val := integer(rand_val * 2000.0 - 1000.0);  -- Range: -1000 to 1000
+            raw_data(i) <= to_signed(int_val, DATA_WIDTH);
+        end loop;
+        
+        start <= '1';
+        wait for CLK_PERIOD;
+        start <= '0';
+        
+        wait until done = '1';
+        wait for CLK_PERIOD;
+        
+        test_passed := true;
+        for i in 0 to ARRAY_SIZE-2 loop
+            assert (sorted_data(i) <= sorted_data(i+1))
+                report "SORTING FAILED in Test 5"
+                severity error;
+            
+            if sorted_data(i) > sorted_data(i+1) then
+                test_passed := false;
+            end if;
+        end loop;
+        
+        if test_passed then
+            report "*** TEST 5 PASSED ***" severity note;
+        else
+            report "*** TEST 5 FAILED ***" severity error;
+        end if;
     end process stimulus_process;
 
 end Behavioral;
