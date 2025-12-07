@@ -124,6 +124,49 @@ begin
     -- Assign output
     o_done <= done_reg;
     
-        
+    -- MODUL 9 & 8: Datapath controlled by microcode signals
+    datapath_proc: process(i_clk, i_rst)
+        variable temp_idx : integer := 0;
+    begin
+        if i_rst = '1' then
+            reg_input_data  <= (others => (others => '0'));
+            reg_output_data <= (others => (others => '0'));
+            o_sorted_data   <= (others => (others => '0'));
+            process_counter <= 0;
+        elsif rising_edge(i_clk) then
+            
+            -- MODUL 9: Use microcode control signals
+            if control_signals.load_en = '1' then
+                reg_input_data  <= i_raw_data;
+                process_counter <= 0;
+            end if;
+            
+            if control_signals.sort_en = '1' then
+                -- MODUL 6: LOOP construct untuk counter
+                if process_counter < 5 then
+                    process_counter <= process_counter + 1;
+                end if;
+                
+                if process_counter = 3 then
+                    reg_output_data <= net_output;
+                end if;
+            end if;
+            
+            if control_signals.latch_en = '1' then
+                o_sorted_data <= reg_output_data;
+            end if;
+            
+            -- MODUL 6: Simple FOR loop example in datapath
+            if current_state = IDLE then
+                process_counter <= 0;
+                temp_idx := 0;
+                -- Reset logic with loop
+                for i in 0 to 3 loop
+                    temp_idx := temp_idx + 1;
+                end loop;
+            end if;
+            
+        end if;
+    end process datapath_proc;        
 
 end Behavioral;
