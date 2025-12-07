@@ -36,6 +36,24 @@ architecture Behavioral of top_sorter is
     signal process_counter : integer range 0 to 5;
     signal done_reg : std_logic;
 
+    -- MODUL 9: Microprogramming - Control signals ROM
+    type t_control_word is record
+        load_en   : std_logic;
+        sort_en   : std_logic;
+        latch_en  : std_logic;
+        done_flag : std_logic;
+    end record;
+    
+    type t_microcode is array (0 to 3) of t_control_word;
+    constant MICROCODE : t_microcode := (
+        0 => ('0', '0', '0', '0'),  -- IDLE
+        1 => ('1', '0', '0', '0'),  -- LOAD
+        2 => ('0', '1', '0', '0'),  -- SORTING
+        3 => ('0', '0', '1', '1')   -- DONE
+    );
+    
+    signal control_signals : t_control_word;
+
 begin
 
     -- MODUL 5: Structural MOdel
@@ -44,6 +62,9 @@ begin
             i_data => reg_input_data,
             o_data => net_output
         );
+
+    -- MODUL 9: Microcode decoder - fetch control signals from ROM
+    control_signals <= MICROCODE(t_state'pos(current_state));
     
     -- MODUL 8: FSM State Register
     state_register: process(i_clk, i_rst)
