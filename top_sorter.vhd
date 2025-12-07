@@ -29,6 +29,13 @@ architecture Behavioral of top_sorter is
     
     signal net_output      : t_data_array;
 
+    -- MODUL 8: FSM State Type
+    type t_state is (IDLE, LOAD, SORTING, DONE);
+    signal current_state, next_state : t_state;
+    
+    signal process_counter : integer range 0 to 5;
+    signal done_reg : std_logic;
+
 begin
 
     -- MODUL 5: Structural MOdel
@@ -37,6 +44,64 @@ begin
             i_data => reg_input_data,
             o_data => net_output
         );
+    
+    -- MODUL 8: FSM State Register
+    state_register: process(i_clk, i_rst)
+    begin
+        if i_rst = '1' then
+            current_state <= IDLE;
+        elsif rising_edge(i_clk) then
+            current_state <= next_state;
+        end if;
+    end process state_register;
+    
+    -- FSM: Next State Logic (Combinational)
+    next_state_logic: process(current_state, i_start, process_counter)
+    begin
+        -- Default: stay in current state
+        next_state <= current_state;
+        
+        case current_state is
+            when IDLE =>
+                if i_start = '1' then
+                    next_state <= LOAD;
+                end if;
+            
+            when LOAD =>
+                next_state <= SORTING;
+            
+            when SORTING =>
+                -- PERBAIKAN: Tingkatkan delay counter untuk stabilitas
+                if process_counter >= 3 then
+                    next_state <= DONE;
+                end if;
+            
+            when DONE =>
+                if i_start = '0' then
+                    next_state <= IDLE;
+                end if;
+            
+            when others =>
+                next_state <= IDLE;
+        end case;
+    end process next_state_logic;
+    
+    -- FSM: Output Logic (Combinational)
+    output_logic: process(current_state, reg_output_data)
+    begin
+        -- Default values
+        done_reg <= '0';
+        
+        case current_state is
+            when DONE =>
+                done_reg <= '1';
+            when others =>
+                done_reg <= '0';
+        end case;
+    end process output_logic;
+    
+    -- Assign output
+    o_done <= done_reg;
     
         
 
