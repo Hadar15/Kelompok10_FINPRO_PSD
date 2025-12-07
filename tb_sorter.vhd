@@ -132,7 +132,74 @@ begin
         
         wait for CLK_PERIOD * 5;
         
-        wait; -- Temporary wait to prevent infinite loop before next commits
+        -- Test 3: Edge case - Already sorted data
+        report "========================================" severity note;
+        report "Test 2: Testing with already sorted data..." severity note;
+        
+        for i in 0 to ARRAY_SIZE-1 loop
+            raw_data(i) <= to_signed(i * 10, DATA_WIDTH);
+        end loop;
+        
+        start <= '1';
+        wait for CLK_PERIOD;
+        start <= '0';
+        
+        wait until done = '1';
+        wait for CLK_PERIOD;
+        
+        test_passed := true;
+        for i in 0 to ARRAY_SIZE-2 loop
+            assert (sorted_data(i) <= sorted_data(i+1))
+                report "SORTING FAILED in Test 2"
+                severity error;
+            
+            if sorted_data(i) > sorted_data(i+1) then
+                test_passed := false;
+            end if;
+        end loop;
+        
+        if test_passed then
+            report "*** TEST 2 PASSED ***" severity note;
+        else
+            report "*** TEST 2 FAILED ***" severity error;
+        end if;
+        
+        wait for CLK_PERIOD * 5;
+        
+        -- Test 4: Edge case - Reverse sorted data
+        report "========================================" severity note;
+        report "Test 3: Testing with reverse sorted data..." severity note;
+        
+        for i in 0 to ARRAY_SIZE-1 loop
+            raw_data(i) <= to_signed((ARRAY_SIZE-1-i) * 10, DATA_WIDTH);
+        end loop;
+        
+        start <= '1';
+        wait for CLK_PERIOD;
+        start <= '0';
+        
+        wait until done = '1';
+        wait for CLK_PERIOD;
+        
+        test_passed := true;
+        for i in 0 to ARRAY_SIZE-2 loop
+            assert (sorted_data(i) <= sorted_data(i+1))
+                report "SORTING FAILED in Test 3"
+                severity error;
+            
+            if sorted_data(i) > sorted_data(i+1) then
+                test_passed := false;
+            end if;
+        end loop;
+        
+        if test_passed then
+            report "*** TEST 3 PASSED ***" severity note;
+        else
+            report "*** TEST 3 FAILED ***" severity error;
+        end if;
+        
+        wait for CLK_PERIOD * 5;
+        wait; -- Temporary wait
     end process stimulus_process;
 
 end Behavioral;
