@@ -4,18 +4,24 @@ use IEEE.NUMERIC_STD.ALL;
 
 package sorter_pkg is
     constant DATA_WIDTH : integer := 16;
+    -- Lebar bit 
     constant ARRAY_SIZE : integer := 16;
-
+    -- Jumlah elemen dalam array 
+    -- Tipe array
     type t_data_array is array (0 to ARRAY_SIZE-1) of SIGNED(DATA_WIDTH-1 downto 0);
-
+    -- true jika array terurut naik
     function is_sorted(data : t_data_array) return boolean;
+    -- return nilai minimum dari array
     function find_min(data : t_data_array) return SIGNED;
+    -- Impure function untuk logging
     impure function log_array(data : t_data_array; prefix : string) return integer;
+    -- Procedure untuk message printing
     procedure print_array(data : t_data_array; msg : string);
 end package sorter_pkg;
 
 package body sorter_pkg is
     
+    -- Memeriksa apakah terurut ascending
     function is_sorted(data : t_data_array) return boolean is
     begin
         for i in 0 to ARRAY_SIZE-2 loop
@@ -26,6 +32,7 @@ package body sorter_pkg is
         return true;
     end function is_sorted;
 
+    -- Cari dan kembalikan nilai minimum dari array
     function find_min(data : t_data_array) return SIGNED is
         variable min_val : SIGNED(DATA_WIDTH-1 downto 0);
     begin
@@ -44,6 +51,7 @@ package body sorter_pkg is
         return 0;
     end function log_array;
 
+    -- print element array dengan message
     procedure print_array(data : t_data_array; msg : string) is
     begin
         report "=== " & msg & " ===";
